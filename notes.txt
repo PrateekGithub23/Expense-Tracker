@@ -1,0 +1,132 @@
+You're doing great so far — your implementation of CRUD and basic filtering is clean and functional! Now, for the remaining functions (filters, analysis, utility), here's what **each function** will do in detail, using your pattern of `from database import connect, close_connection` — **without giving code**, just purpose and logic.
+
+---
+
+### ✅ 6. `get_expenses_by_category(category)`
+
+**Purpose:** Retrieve all expenses that belong to a specific category.
+
+**What it will do:**
+
+* Connect to the database.
+* Run `SELECT * FROM expenses WHERE category = ?`.
+* Return or print all matching rows.
+* Useful to analyze or view category-wise spending (like Food, Travel, Bills).
+
+---
+
+### ✅ 7. `get_expenses_between_dates(start_date, end_date)`
+
+**Purpose:** Fetch all expenses recorded between two specific dates.
+
+**What it will do:**
+
+* Accept `start_date` and `end_date` in format like `YYYY-MM-DD`.
+* Run a query using `WHERE date BETWEEN ? AND ?`.
+* Return a list of expenses sorted (optionally) by date.
+* Helps analyze spending over a time range (e.g., weekly/monthly reviews).
+
+---
+
+### ✅ 8. `search_expenses(keyword)`
+
+**Purpose:** Perform a search across notes and categories using a keyword.
+
+**What it will do:**
+
+* Use SQL `LIKE` operator to find entries where `note` or `category` contains the keyword.
+* Allow flexible, case-insensitive search like “Starbucks”, “bus”, or “grocery”.
+* Run: `WHERE note LIKE ? OR category LIKE ?`.
+
+---
+
+### ✅ 9. `get_total_spent()`
+
+**Purpose:** Calculate the total money spent across all entries.
+
+**What it will do:**
+
+* Use aggregation: `SELECT SUM(amount) FROM expenses`.
+* Return a single number representing total spending.
+* Useful for dashboards or setting limits.
+
+---
+
+### ✅ 10. `get_total_spent_by_category(category)`
+
+**Purpose:** Get total expenses under a single category.
+
+**What it will do:**
+
+* Run `SELECT SUM(amount) FROM expenses WHERE category = ?`.
+* Return how much was spent in that category.
+* Helps track where you're spending the most (e.g., "Food" totals \$200).
+
+---
+
+### ✅ 11. `get_daily_spending_summary()`
+
+**Purpose:** Provide daily totals of spending.
+
+**What it will do:**
+
+* Group all records by `date`, then sum `amount` per date.
+* Query: `SELECT date, SUM(amount) FROM expenses GROUP BY date ORDER BY date`.
+* Display or return a list like:
+
+  ```
+  2025-05-08: $23.50
+  2025-05-09: $12.00
+  ```
+
+---
+
+### ✅ 12. `get_monthly_summary(year, month)`
+
+**Purpose:** Summarize all expenses for a given year and month.
+
+**What it will do:**
+
+* Accept parameters like `2025` and `05` (May).
+* Use `WHERE date LIKE '2025-05%'` or extract month using SQL substrings.
+* Return total spending or breakdown by category/date for that month.
+
+---
+
+### ✅ 13. `get_top_spending_categories(limit=5)`
+
+**Purpose:** List the top N categories where you've spent the most money.
+
+**What it will do:**
+
+* Use `GROUP BY category`, `SUM(amount)`, then `ORDER BY SUM(amount) DESC`.
+* Apply `LIMIT ?` to get top 5 (or user-defined) categories.
+* Shows where most of your money is going.
+
+---
+
+### ✅ 14. `export_expenses_to_csv(filename)`
+
+**Purpose:** Save all expenses into a CSV file for backup or reporting.
+
+**What it will do:**
+
+* Connect to the DB and fetch all rows.
+* Use Python’s `csv` module to write rows into a file.
+* First row will be headers like `['ID', 'Name', 'Amount', 'Category', 'Note', 'Date']`.
+
+---
+
+### ✅ 15. `reset_all_data(confirm=False)`
+
+**Purpose:** Delete all expense data (e.g., for resetting or starting fresh).
+
+**What it will do:**
+
+* If `confirm == True`, execute `DELETE FROM expenses`.
+* Otherwise, ask the user for confirmation.
+* Can optionally also vacuum the database to recover space.
+
+---
+
+Would you like a suggested order or checklist for implementing these remaining functions one by one?
