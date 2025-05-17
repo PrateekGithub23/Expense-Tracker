@@ -70,13 +70,9 @@ def delete_expense():
         cursor.execute('DELETE FROM expenses WHERE name = ?', (name,))
 
     elif userChoice == 2:
-        try:
-            expense_id = int(input("Enter the expense ID to delete: "))
-            cursor.execute('DELETE FROM expenses WHERE expense_id = ?', (expense_id,))
-        except ValueError:
-            print("Invalid expense ID.")
-            close_connection(connection)
-            return
+        expense_id = int(input("Enter the expense ID to delete: "))
+        cursor.execute('DELETE FROM expenses WHERE expense_id = ?', (expense_id,))
+        
     elif userChoice == 3:
         date = input("Enter the date (YYYY-MM-DD) to delete expenses from: ").strip()
         cursor.execute('DELETE FROM expenses WHERE date = ?', (date,))
@@ -203,4 +199,20 @@ def get_expenses_between_dates(start, end):
         return None
     
 def search_expenses(keyword):
+    connection = connect()
+    if connection:
+        cursor = connection.cursor()
+
+
+        sql = '''
+            SELECT * FROM expenses
+            WHERE name LIKE ?
+        '''
+        cursor.execute(sql, ('%' + keyword + '%',))
+        
+        results = cursor.fetchall()
+        connection.close()
+        return results
+    
+
     
