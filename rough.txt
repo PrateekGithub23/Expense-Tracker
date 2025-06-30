@@ -1,0 +1,135 @@
+🛠️ PHASE 1: Finish Backend (Python + SQLite)
+✅ You already have:
+
+database.py, expense_tracker.py, analytics.py
+
+🔄 Now add:
+
+More analytics functions:
+
+get_highest_expense(), get_monthly_expense_summary()...
+
+utils.py for:
+
+Date validation (datetime.strptime)
+
+Export to CSV (csv or pandas)
+
+Pretty print (tabulate)
+
+📘 Learn as you go:
+
+SQLite queries → w3schools SQLite
+
+Python SQL → RealPython SQLite Tutorial
+
+Python datetime → Python datetime docs
+
+🌐 PHASE 2: Turn It Into a Web App (Flask)
+📦 Step 1: Set up Flask
+Install Flask:
+
+bash
+Copy
+Edit
+pip install flask flask_sqlalchemy flask_login
+Create folder structure:
+
+cpp
+Copy
+Edit
+expense_web/
+├── app.py
+├── database.py
+├── routes/
+│   ├── __init__.py
+│   ├── expenses.py
+│   └── auth.py
+├── templates/
+│   ├── layout.html
+│   ├── login.html
+│   ├── register.html
+│   ├── dashboard.html
+├── static/
+│   └── style.css
+├── models.py
+├── utils.py
+✅ Step 2: Create Core Routes
+/register – user registration
+
+/login – login with Flask-Login
+
+/dashboard – show expense stats
+
+/add – add new expense
+
+/view – view + filter all expenses
+
+/analytics – graphs
+
+📘 Learn Flask:
+Official Flask Tutorial
+
+Corey Schafer Flask Playlist (YouTube)
+
+🔐 PHASE 3: Add Authentication
+        ✅ Use:
+        Flask-Login for sessions
+
+        Werkzeug.security to hash passwords
+
+        📘 Learn:
+        Flask Login Tutorial – DigitalOcean
+
+📊 PHASE 4: Add Visualizations
+        ✅ Tools:
+        matplotlib or plotly
+
+        Optional: Chart.js (frontend JS graphs)
+
+        Graph Ideas:
+
+        Pie chart: category-wise spend
+
+        Line graph: daily/monthly expenses
+
+        Bar graph: expense count by category
+
+        📘 Learn:
+
+        Matplotlib intro
+
+        Plotly Python
+
+        Chart.js basics
+
+📦 PHASE 5: Add Polishing Features
+        ✅ Export to PDF/CSV (pandas, reportlab)
+
+        ✅ Search + filters (by name, amount, date)
+
+        ✅ Mobile responsive using Bootstrap
+
+        ✅ PHASE 6: Make It Resume-Worthy
+        🧾 README.md Content:
+        Summary: What this app does
+
+        Stack: Python, SQLite, Flask, Bootstrap, Chart.js
+
+        Features: CRUD, Auth, Analytics, Graphs
+
+        Setup guide
+
+        Screenshots / GIF demo
+
+        ✅ Add:
+        GitHub Repo
+
+        requirements.txt (use pip freeze > requirements.txt)
+
+        Optional: Deploy it using Render or Vercel + Flask
+
+        🧠 Optional Bonus: REST API + Frontend
+        Use Flask-Restful to build an API
+
+        Learn React to build a separate frontend

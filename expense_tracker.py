@@ -211,8 +211,78 @@ def search_expenses(keyword):
         cursor.execute(sql, ('%' + keyword + '%',))
         
         results = cursor.fetchall()
-        connection.close()
+        close_connection(connection)
         return results
     
+def get_expenses_by_amount_range(min, max):
+    connection = connect()
+    if connection:
+        cursor = connection.cursor()
 
+        sql = '''
+            SELECT * from expenses where amount BETWEEN ? and ?
+
+        '''
+        cursor.execute(sql, (min, max))
+        results = cursor.fetchall()
+        close_connection(connection)
+        return results
+
+
+def get_latest_expenses(n):
+
+    # establish the connection
+
+    connection = connect()
+    if connection:
+        cursor = connection.cursor()
+
+        sql = '''
+            SELECT * from expenses ORDER BY date DESC LIMIT ?
+        '''
+
+        cursor.execute(sql, (n,))
+        rows = cursor.fetchall()
+        close_connection(connection)
+        return rows
+    else:
+        print("Failed to connect to the database.")
+        return None
     
+
+def get_distinct_categories():
+    # establish the connection
+
+    connection = connect()
+    if connection:
+        cursor = connection.cursor()
+
+        sql = '''
+            SELECT DISTINCT category FROM expenses
+        '''
+
+        cursor.execute(sql)
+
+        rows = cursor.fetchall()
+
+        categoryData = []
+        for data in rows:
+            categoryData.append(data)
+        
+        close_connection(connection)
+        return categoryData
+
+    else:
+        print("Failed to connect to the database.")
+        return []
+    
+def get_total_count():
+    connection = connect()
+    if connection:
+        cursor = connection.cursor()
+        cursor.execute('SELECT COUNT(*) FROM expenses')
+        count = cursor.fetchone()[0]
+        close_connection(connection)
+        return count
+    else:
+        print("Failed to connect to the database.")
