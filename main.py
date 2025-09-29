@@ -1,7 +1,6 @@
-from database import connect
-
-
+# main.py
+from database import init_db
 
 if __name__ == "__main__":
-    connect()
+    init_db()
     print("Database and table created successfully.")
