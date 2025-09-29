@@ -86,7 +86,9 @@ def delete_expenses_by(
 def get_all_expenses() -> List[Dict[str, Any]]:
     conn = _connect()
     try:
-        rows = conn.execute("SELECT * FROM expenses ORDER BY date DESC, expense_id DESC").fetchall()
+        rows = conn.execute(
+            "SELECT * FROM expenses ORDER BY date DESC, expense_id DESC"
+        ).fetchall()
         return [dict(r) for r in rows]
     finally:
         conn.close()
@@ -94,7 +96,9 @@ def get_all_expenses() -> List[Dict[str, Any]]:
 def get_expense_by_id(expense_id: int) -> Optional[Dict[str, Any]]:
     conn = _connect()
     try:
-        row = conn.execute("SELECT * FROM expenses WHERE expense_id = ?", (expense_id,)).fetchone()
+        row = conn.execute(
+            "SELECT * FROM expenses WHERE expense_id = ?", (expense_id,)
+        ).fetchone()
         return dict(row) if row else None
     finally:
         conn.close()
@@ -102,7 +106,9 @@ def get_expense_by_id(expense_id: int) -> Optional[Dict[str, Any]]:
 def get_expenses_by_date(date: str) -> List[Dict[str, Any]]:
     conn = _connect()
     try:
-        rows = conn.execute("SELECT * FROM expenses WHERE date = ? ORDER BY expense_id DESC", (date,)).fetchall()
+        rows = conn.execute(
+            "SELECT * FROM expenses WHERE date = ? ORDER BY expense_id DESC", (date,)
+        ).fetchall()
         return [dict(r) for r in rows]
     finally:
         conn.close()
@@ -110,7 +116,9 @@ def get_expenses_by_date(date: str) -> List[Dict[str, Any]]:
 def get_expenses_by_category(category: str) -> List[Dict[str, Any]]:
     conn = _connect()
     try:
-        rows = conn.execute("SELECT * FROM expenses WHERE category = ? ORDER BY date DESC", (category,)).fetchall()
+        rows = conn.execute(
+            "SELECT * FROM expenses WHERE category = ? ORDER BY date DESC", (category,)
+        ).fetchall()
         return [dict(r) for r in rows]
     finally:
         conn.close()
@@ -162,7 +170,9 @@ def get_latest_expenses(n: int = 10) -> List[Dict[str, Any]]:
 def get_distinct_categories() -> List[str]:
     conn = _connect()
     try:
-        rows = conn.execute("SELECT DISTINCT category FROM expenses ORDER BY category ASC").fetchall()
+        rows = conn.execute(
+            "SELECT DISTINCT category FROM expenses ORDER BY category ASC"
+        ).fetchall()
         return [r["category"] for r in rows]
     finally:
         conn.close()

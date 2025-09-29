@@ -4,6 +4,10 @@ from collections import defaultdict
 from typing import Dict, List
 from datetime import datetime
 
+
+# Helper Fuctions for Analytics
+
+
 def total_spent(rows: List[dict]) -> float:
     return sum(r["amount"] for r in rows)
 
