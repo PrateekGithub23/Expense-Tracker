@@ -1,17 +1,30 @@
 # expense_tracker.py
 from __future__ import annotations
 import typer
+from pathlib import Path
 from rich.console import Console
 from rich.table import Table
-from datetime import date  # NEW: for defaulting date prompts to today
+from datetime import date  # defaulting date prompts to today
 
+# import local modules
 import database as db
 from utils import parse_amount_and_date, currency
 from analytics import by_category, monthly_summary, total_spent, top_expenses, average_daily
+from csv_io import export_to_csv, import_expenses_from_csv
 
-app = typer.Typer(help="Incomp - Expense Tracker")
+
+def _ensure_db():
+    if not Path("expenses.db").exists():
+        db.init_db()
+
+# Root App
+app = typer.Typer(help="Expense Tracker")
+
+# Rich console for pretty printing
 console = Console()
 
+
+# Function to print the rows in the Rich Table
 def _print_rows(rows):
     table = Table(show_header=True, header_style="bold")
     table.add_column("ID", justify="right")
@@ -31,9 +44,11 @@ def _print_rows(rows):
         )
     console.print(table)
 
+
+# CLI Commands - Initiate Database
 @app.command()
 def init():
-    """Initialize the database (idempotent)."""
+    
     db.init_db()
     console.print(":white_check_mark: Database ready.")
 
@@ -162,22 +177,52 @@ def report():
     console.rule("[bold]Top 5 Expenses")
     _print_rows(top5)
 
-# ----------------------- NEW: Interactive Menu -----------------------
+
 def _prompt_expense_fields():
-    """Prompt for fields and return validated values."""
+    
     name = typer.prompt("Name")
-    amount = typer.prompt("Amount", type=float)
+    amount = typer.prompt("Amount", type=float) # ensure float input
     category = typer.prompt("Category")
     dt_default = date.today().isoformat()
-    date_str = typer.prompt("Date (YYYY-MM-DD)", default=dt_default)
+    date_str = typer.prompt("Date (YYYY-MM-DD)", default=dt_default) # default to today
     note = typer.prompt("Note (optional)", default="")
     amt, dt = parse_amount_and_date(amount, date_str)
     return name, amt, category, note, dt
 
 @app.command()
-def menu():
-    """Interactive menu loop (no CLI args needed)."""
+def export(path: str = typer.Argument(..., help="Output CSV path")):
+    
+    count = export_to_csv(path)
+    console.print(f":outbox_tray: Exported [b]{count}[/b] rows to [b]{path}[/b].")
+
+@app.command(name="importcsv")
+def importcsv(
+    path: str = typer.Argument(..., help="Input CSV path"),
+    mode: str = typer.Option("append", "--mode", "-m", help="append | upsert"),
+):
+
+    inserted, updated = import_expenses_from_csv(path, mode=mode)
+    console.print(f":inbox_tray: Inserted [b]{inserted}[/b], Updated [b]{updated}[/b] from [b]{path}[/b].")
+
+def _prompt_csv_path(default_name: str) -> str:
+    return typer.prompt("CSV File Path", default=default_name)
+
+def _prompt_import_mode() -> str:
     while True:
+        mode = typer.prompt("Import mode (append/upsert)", default="append").strip().lower()
+        if mode in {"append", "upsert"}:
+            return mode
+        console.print("Invalid mode. Type 'append' or 'upsert'.")
+
+# CLI Command to display Menu Options
+@app.command()
+def menu():
+    
+    # Ensure DB is initialized
+    _ensure_db()
+    while True:
+
+        # Header for Menu
         console.rule("[bold]Expense Tracker Menu")
         console.print(
             "[b]1[/b] Add expense\n"
@@ -187,8 +232,12 @@ def menu():
             "[b]5[/b] Between dates\n"
             "[b]6[/b] Report\n"
             "[b]7[/b] Delete by ID\n"
+            "[b]8[/b] Export to CSV\n"          # <-- NEW
+            "[b]9[/b] Import from CSV\n"        # <-- NEW
             "[b]0[/b] Quit"
         )
+
+        # Prompt the user to choose a menu option
         choice = typer.prompt("Choose an option", type=int)
 
         if choice == 1:
@@ -201,13 +250,13 @@ def menu():
             _print_rows(rows) if rows else console.print("No expenses yet.")
 
         elif choice == 3:
-            kw = typer.prompt("Keyword")
-            rows = db.search_expenses(kw)
+            keyword = typer.prompt("Keyword")
+            rows = db.search_expenses(keyword)
             _print_rows(rows) if rows else console.print("No matches.")
 
         elif choice == 4:
-            cat = typer.prompt("Category")
-            rows = db.get_expenses_by_category(cat)
+            category = typer.prompt("Category")
+            rows = db.get_expenses_by_category(category)
             _print_rows(rows) if rows else console.print("No expenses for this category.")
 
         elif choice == 5:
@@ -229,7 +278,7 @@ def menu():
 
             console.rule("[bold]Summary")
             console.print(f"Total spent: [bold]{currency(total_v)}[/bold]")
-            console.print(f"Average per day (observed window): [bold]{currency(avg_day_v)}[/bold]")
+            console.print(f"Average per day: [bold]{currency(avg_day_v)}[/bold]")
 
             console.rule("[bold]By Category")
             t1 = Table(show_header=True, header_style="bold")
@@ -253,6 +302,28 @@ def menu():
             deleted = db.delete_expenses_by(expense_id=eid)
             console.print(f":wastebasket: Deleted {deleted} row(s).")
 
+        elif choice == 8:
+            # Export to CSV
+            default_name = "expenses.csv"
+            path = _prompt_csv_path(default_name)
+            try:
+                count = export_expenses_to_csv(path)
+                console.print(f":outbox_tray: Exported [b]{count}[/b] rows to [b]{path}[/b].")
+            except Exception as e:
+                console.print(f"[red]Export failed:[/red] {e}")
+
+        elif choice == 9:
+            # Import from CSV
+            path = _prompt_csv_path("expenses.csv")
+            mode = _prompt_import_mode()
+            try:
+                inserted, updated = import_expenses_from_csv(path, mode=mode)
+                console.print(f":inbox_tray: Inserted [b]{inserted}[/b], Updated [b]{updated}[/b] from [b]{path}[/b].")
+            except FileNotFoundError:
+                console.print(f"[red]File not found:[/red] {path}")
+            except Exception as e:
+                console.print(f"[red]Import failed:[/red] {e}")
+                
         elif choice == 0:
             console.print("Goodbye! 👋")
             break
@@ -261,5 +332,11 @@ def menu():
             console.print("Invalid choice. Try again.")
 # --------------------------------------------------------------------
 
+
 if __name__ == "__main__":
-    app()
+    import sys
+    # If run with no CLI args, open the interactive menu by default
+    if len(sys.argv) == 1:
+        menu()
+    else:
+        app()
