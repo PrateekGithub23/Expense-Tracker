@@ -339,4 +339,5 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         menu()
     else:
+        db.init_db()  # CREATE TABLE IF NOT EXISTS, so commands work on a fresh clone
         app()
